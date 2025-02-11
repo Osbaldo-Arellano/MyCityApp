@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">My City</string>
-    <string name="choose_category">Woodburn -- Categories</string>
-    <string name="choose_recommendation">Assignment 4</string>
-    <string name="recommendation_summary">Recommended Place</string>
+    <string name="my_city">Woodburn, Oregon</string>
+    <string name="choose_category">Categories</string>
+    <string name="choose_recommendation">Recommendations</string>
+    <string name="recommendation_summary">Your Recommended Place</string>
     <string name="back_button">Back</string>
 </resources>

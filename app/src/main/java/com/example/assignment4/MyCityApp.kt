@@ -1,8 +1,26 @@
+/*
+ * MyCityApp - An Android Jetpack Compose App
+ *
+ * This application provides recommendations for various categories
+ * (e.g., coffee shops, parks, restaurants) within Woodburn, Oregon.
+ * Users can navigate through different categories and view details
+ * about each recommended place.
+ *
+ * Features:
+ * - Uses Jetpack Compose for UI.
+ * - Implements a navigation system with Jetpack Navigation.
+ * - Follows the MVVM (Model-View-ViewModel) architecture.
+ * - Utilizes Material Design 3 for UI.
+ *
+ * Developed as part of Assignment 4.
+ *
+ */
+
+
 package com.example.assignment4
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -13,42 +31,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
-import android.content.Context
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import android.content.Intent
 import android.util.Log
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 import com.example.assignment4.data.DataSource
 import com.example.assignment4.ui.CategoryListScreen
+import com.example.assignment4.ui.RecommendationDetailScreen
+import com.example.assignment4.ui.RecommendationListScreen
 import com.example.assignment4.ui.theme.CityViewModel
 
 enum class MyCityScreen(@StringRes val title: Int) {
-    CategoryList(title = R.string.choose_category),
+    CategoryList(title = R.string.my_city),
     RecommendationList(title = R.string.choose_recommendation),
     RecommendationDetail(title = R.string.recommendation_summary)
 }
@@ -93,6 +96,7 @@ fun MyCityApp (
     val uiState by viewModel.uiState.collectAsState()
 
     // Logs whenever uiState changes
+    // Source: https://stackoverflow.com/questions/78569757/how-launchedeffect-works
     LaunchedEffect(uiState) {
         Log.d("MyCityApp", "Updated UI State: $uiState")
     }
@@ -107,8 +111,6 @@ fun MyCityApp (
         }
     ) { innerPadding ->
 
-        val uiState by viewModel.uiState.collectAsState()
-
         NavHost(
             navController = navController,
             startDestination = MyCityScreen.CategoryList.name,
@@ -119,10 +121,34 @@ fun MyCityApp (
                     categories = DataSource.categories,
                     onNextButtonClicked = {
                         viewModel.selectCategory(it)
-//                        navController.navigate(MyCityScreen.RecommendationList.name)
+                        navController.navigate(MyCityScreen.RecommendationList.name)
                     }
                 )
             }
+
+            composable(route = MyCityScreen.RecommendationList.name) {
+                RecommendationListScreen(
+                    categories = DataSource.places,
+                    selectedCategory = uiState.selectedCategoryId,
+                    onNextButtonClicked = {
+                        viewModel.selectPlace(it)
+                        navController.navigate(MyCityScreen.RecommendationDetail.name)
+                    },
+                    onBackButtonClicked = { navController.popBackStack() }
+                )
+            }
+
+            composable(route = MyCityScreen.RecommendationDetail.name) {
+                uiState.selectedPlaceId?.let { it1 ->
+                    RecommendationDetailScreen(
+                        places = DataSource.placesDetail,
+                        selectedPlace = it1,
+                        onNextButtonClicked = { viewModel.selectPlace(it) },
+                        onBackButtonClicked = { navController.popBackStack() }
+                    )
+                }
+            }
+
         }
 
     }
