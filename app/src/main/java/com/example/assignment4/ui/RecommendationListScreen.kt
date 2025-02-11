@@ -57,7 +57,6 @@ fun RecommendationListScreen(
                     placeName = place,
                     onClick = { onNextButtonClicked(place) }
                 )
-                Divider()
             }
         }
     }

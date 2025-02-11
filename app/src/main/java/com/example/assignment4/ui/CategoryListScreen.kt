@@ -53,7 +53,6 @@ fun CategoryListScreen(
                     categoryName = category,
                     onClick = { onNextButtonClicked(category) }
                 )
-                Divider()
             }
         }
     }
