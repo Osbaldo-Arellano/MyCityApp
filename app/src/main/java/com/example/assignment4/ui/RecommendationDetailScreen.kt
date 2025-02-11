@@ -37,8 +37,6 @@ import com.example.assignment4.R
 fun RecommendationDetailScreen(
     places: Map<String, Pair<String, String>>,
     selectedPlace: String,
-    onNextButtonClicked: (String) -> Unit,
-    onBackButtonClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Get details and image resource based on the selected place

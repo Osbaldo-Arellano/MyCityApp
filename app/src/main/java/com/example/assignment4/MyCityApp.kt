@@ -40,10 +40,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import android.util.Log
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.LaunchedEffect
 import com.example.assignment4.data.DataSource
 import com.example.assignment4.ui.CategoryListScreen
 import com.example.assignment4.ui.RecommendationDetailScreen
@@ -59,13 +57,13 @@ enum class MyCityScreen(@StringRes val title: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyCityAppBar(
-    currentScreen: MyCityScreen,
+    title: String,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
-        title = { Text(stringResource(currentScreen.title)) },
+        title = { Text(title) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
@@ -83,39 +81,44 @@ fun MyCityAppBar(
     )
 }
 
+
 @Composable
-fun MyCityApp (
+fun MyCityApp(
     viewModel: CityViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
+
+    // Get the current screen from the route
+    // SOURCE: https://stackoverflow.com/questions/66493551/jetpack-compose-navigation-get-route-of-current-destination-as-string
     val currentScreen = MyCityScreen.valueOf(
         backStackEntry?.destination?.route ?: MyCityScreen.CategoryList.name
     )
 
     val uiState by viewModel.uiState.collectAsState()
 
-    // Logs whenever uiState changes
-    // Source: https://stackoverflow.com/questions/78569757/how-launchedeffect-works
-    LaunchedEffect(uiState) {
-        Log.d("MyCityApp", "Updated UI State: $uiState")
+    // Get the app bar title
+    val appBarTitle = when (currentScreen) {
+        MyCityScreen.CategoryList -> stringResource(R.string.my_city)
+        MyCityScreen.RecommendationList -> uiState.selectedCategoryId
+        MyCityScreen.RecommendationDetail -> uiState.selectedPlaceId
+            ?: stringResource(R.string.recommendation_summary)
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             MyCityAppBar(
-                currentScreen = currentScreen,
+                title = appBarTitle,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
         }
     ) { innerPadding ->
-
         NavHost(
             navController = navController,
             startDestination = MyCityScreen.CategoryList.name,
             modifier = Modifier.padding(innerPadding)
-        ){
+        ) {
             composable(route = MyCityScreen.CategoryList.name) {
                 CategoryListScreen(
                     categories = DataSource.categories,
@@ -139,17 +142,14 @@ fun MyCityApp (
             }
 
             composable(route = MyCityScreen.RecommendationDetail.name) {
-                uiState.selectedPlaceId?.let { it1 ->
+                uiState.selectedPlaceId?.let { selectedPlace ->
                     RecommendationDetailScreen(
                         places = DataSource.placesDetail,
-                        selectedPlace = it1,
-                        onNextButtonClicked = { viewModel.selectPlace(it) },
-                        onBackButtonClicked = { navController.popBackStack() }
+                        selectedPlace = selectedPlace
                     )
                 }
             }
-
         }
-
     }
 }
+
