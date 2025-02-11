@@ -1,6 +1,6 @@
-package com.example.assignment4.data
+package com.example.mycity.data
 
-class MyCityUiState {
-    val selectedCategoryId: String? = null
-    val selectedPlaceId: String? = null
-}
+data class MyCityUiState(
+    val selectedCategoryId: String? = null,
+    val selectedPlaceId: String? = null,
+)

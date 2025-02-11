@@ -1,6 +1,6 @@
 package com.example.assignment4.data
 
-class DataSource {
+object DataSource {
     val categories = listOf("Coffee Shops", "Parks", "Restaurants")
 
     val places: Map<String, List<String>> = mapOf(
